@@ -1,10 +1,14 @@
 using DemoBlazor.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Lägg till ProtectedSessionStorage här
+builder.Services.AddScoped<ProtectedSessionStorage>();
 
 var app = builder.Build();
 
