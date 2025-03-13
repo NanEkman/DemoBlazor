@@ -51,22 +51,31 @@
 
 @code {
 
-    // Mockad lista av produkter
-    private List<Product> products = new List<Product>
-    {
-        new Product { ShoppingListName = "Weekly Groceries", Name = "Apple", Amount = 1 },
-        new Product { ShoppingListName = "Weekly Groceries", Name = "Banana", Amount = 2 },
-        new Product { ShoppingListName = "Dinner Shopping", Name = "Cream", Amount = 1 },
-        new Product { ShoppingListName = "Dinner Shopping", Name = "Cottage Cheese", Amount = 1 },
-        new Product { ShoppingListName = "Weekly Groceries", Name = "Orange", Amount = 3 }
-    };
-
-    // Lista av shoppinglistor
+    // Mockad lista av shoppinglistor
     private List<ShoppingList> shoppingLists = new List<ShoppingList>
+{
+    new ShoppingList
     {
-        new ShoppingList { Id = 1, Title = "Weekly Groceries" },
-        new ShoppingList { Id = 2, Title = "Dinner Shopping" }
-    };
+        Id = 1,
+        Title = "Weekly Groceries",
+        Products = new List<Product>
+        {
+            new Product { Name = "Apple", Amount = 1, Category = "Fruit" },
+            new Product { Name = "Banana", Amount = 2, Category = "Fruit" },
+            new Product { Name = "Orange", Amount = 3, Category = "Fruit" }
+        }
+    },
+    new ShoppingList
+    {
+        Id = 2,
+        Title = "Dinner Shopping",
+        Products = new List<Product>
+        {
+            new Product { Name = "Cream", Amount = 1, Category = "Dairy" },
+            new Product { Name = "Cottage Cheese", Amount = 1, Category = "Dairy" }
+        }
+    }
+};
 
     // Den valda shoppinglistan för att visa produkter
     private ShoppingList selectedList;
@@ -88,18 +97,15 @@
     {
         shoppingLists.Remove(list);
 
-        // Ta bort alla produkter som tillhör den borttagna shoppinglistan
-        products.RemoveAll(p => p.ShoppingListName == list.Title);
     }
 
-    // Redigera shoppinglista (kan implementeras för att tillåta redigering)
+    // Redigera shoppinglista
     private void EditShoppingList(ShoppingList list)
     {
-        // Implementera logik för att redigera listan
-        Console.WriteLine($"Edit list: {list.Title}");
+
     }
 
-    // Spara shoppinglistan (detta kan användas för att t.ex. spara till session)
+    // Spara shoppinglistan 
     private async Task SaveShoppingList()
     {
         var mockData = new ShoppingList
