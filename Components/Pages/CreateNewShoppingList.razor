@@ -43,19 +43,20 @@
             </div>
         </fieldset>
 
-        <nav class="button-group">
-            <button type="button" class="btn btn-primary" @onclick="AddToList">
-                <i class="bi bi-plus-circle"></i> Add to List
-            </button>
+       
 
-            <button type="button" class="btn btn-success" @onclick="CreateShoppingList">
-                <i class="bi bi-save"></i> Create Shopping List
-            </button>
+            <nav class="button-group">
+                <button type="button" class="btn btn-primary" @onclick="AddToList">
+                    <i class="bi bi-plus-circle"></i> Add to List
+                </button>
 
-            <button type="button" class="btn btn-danger" @onclick="Cancel">
-                <i class="bi bi-x-circle"></i> Cancel
-            </button>
-        </nav>
+                <a href="/mypage" class="btn btn-success">Create Shopping List</a>
+
+                <a href="/mypage" class="btn btn-danger">Cancel</a>
+            </nav>
+
+
+        
     </section>
 
     <!-- Högra sektionen: Realtidslista -->
@@ -82,6 +83,7 @@
     </section>
 </section>
 
+
 @code {
     private string ShoppingListName { get; set; } = "New Shoppinglist"; // mockad data
     private string SelectedCategory { get; set; } = "Fruits & Vegetables";
@@ -107,10 +109,11 @@
         }
     }
 
-    private void Cancel()
-    {
-        ShoppingList.Clear();
-    }
+
+    // private void Cancel()
+    // {
+    //    Navigation.NavigateTo("/mypage"); // Navigerar till MyPage
+    // }
 
     private void CreateShoppingList()
     {
@@ -155,18 +158,21 @@
 
     .button-group {
         display: flex;
-        justify-content: space-between;
+        gap: 5px; /* Lägger mellanrum mellan knapparna */
         margin-top: 10px;
-        block-size: stretch;
     }
 
     .btn {
-        padding: 8px 12px;
-        border-radius: 5px;
-        cursor: pointer;
+        display: inline-block;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
         border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
     }
 
+    /* Knapparnas färger */
     .btn-primary {
         background-color: blue;
         color: white;
@@ -182,9 +188,17 @@
         color: white;
     }
 
-    .shopping-list-item, .recently-purchased-item {
-        padding: 5px;
-        border-bottom: 1px solid #ccc;
-        cursor: pointer;
+    /* Hover-effekt */
+    .btn-primary:hover {
+        background-color: darkblue;
     }
+
+    .btn-success:hover {
+        background-color: darkgreen;
+    }
+
+    .btn-danger:hover {
+        background-color: darkred;
+    }
+
 </style>
