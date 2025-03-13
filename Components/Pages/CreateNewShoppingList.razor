@@ -1,6 +1,185 @@
 ﻿@page "/CreateNewShoppingList"
 
-@code {
 
+<h1>Create New Shopping List</h1>
+
+<section class="shopping-container">
+    <!-- Vänstra sektionen: Formulär -->
+    <section class="shopping-form">
+        <fieldset>
+            <legend>Shopping List Details</legend>
+
+            <div>
+                <label>Shopping List Name:</label>
+                <input type="text" class="form-control" @bind="ShoppingListName" placeholder="Enter List Name" />
+            </div>
+
+            <div>
+                <label>Category:</label>
+                <select class="form-control" @bind="SelectedCategory">
+                    <option value="">--Select Category--</option>
+                    <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                    <option value="Fridge">Fridge items</option>
+                    <option value="Freezer">Freezer items</option>
+                    <option value="Pantry">Pantry items</option>
+                    <option value="Hygiene">Hygiene items</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Product Name:</label>
+                <input type="text" class="form-control" @bind="ProductName" placeholder="Enter product name" />
+            </div>
+
+            <div>
+                <label>Amount:</label>
+                <input type="number" class="form-control" @bind="ProductAmount" min="1" step="1" />
+            </div>
+        </fieldset>
+
+        <nav class="button-group">
+            <button type="button" class="btn btn-primary" @onclick="AddToList">
+                <i class="bi bi-plus-circle"></i> Add to List
+            </button>
+
+            <button type="button" class="btn btn-success" @onclick="CreateShoppingList">
+                <i class="bi bi-save"></i> Create Shopping List
+            </button>
+
+            <button type="button" class="btn btn-danger" @onclick="Cancel">
+                <i class="bi bi-x-circle"></i> Cancel
+            </button>
+        </nav>
+    </section>
+
+    <!-- Högra sektionen: Realtidslista -->
+    <section class="shopping-list">
+        <h2>Your Shopping List:</h2>
+        <ul>
+            @foreach (var item in ShoppingList)
+            {
+                <li class="shopping-list-item">
+                    <strong>@item.Category:</strong> @item.Name (@item.Amount)
+                </li>
+            }
+        </ul>
+    </section>
+
+    <!-- Recently Purchased -->
+    <section class="recently-purchased">
+        <h3>Recently Purchased</h3>
+        <ul>
+            <li class="recently-purchased-item">Milk</li>
+            <li class="recently-purchased-item">Bread</li>
+            <li class="recently-purchased-item">Eggs</li>
+        </ul>
+    </section>
+</section>
+
+@code {
+    private string ShoppingListName { get; set; } = "";
+    private string SelectedCategory { get; set; } = "";
+    private string ProductName { get; set; } = "";
+    private int ProductAmount { get; set; } = 1;
+
+    private List<ProductItem> ShoppingList { get; set; } = new();
+
+    private void AddToList()
+    {
+        if (!string.IsNullOrWhiteSpace(ProductName) && !string.IsNullOrWhiteSpace(SelectedCategory))
+        {
+            ShoppingList.Add(new ProductItem
+                {
+                    Name = ProductName,
+                    Category = SelectedCategory,
+                    Amount = ProductAmount
+                });
+
+            // Återställ fälten efter att vi lagt till produkten
+            ProductName = "";
+            ProductAmount = 1;
+        }
+    }
+
+    private void Cancel()
+    {
+        ShoppingList.Clear();
+    }
+
+    private void CreateShoppingList()
+    {
+        Console.WriteLine("Shopping List Created!");
+    }
+
+    private class ProductItem
+    {
+        public string Name { get; set; } = "";
+        public string Category { get; set; } = "";
+        public int Amount { get; set; }
+    }
 }
 
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #2c2c2c;
+        color: white;
+    }
+
+    .shopping-container {
+        display: flex;
+        justify-content: space-between;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .shopping-form, .shopping-list, .recently-purchased {
+        background-color: #444;
+        padding: 15px;
+        border-radius: 8px;
+        width: 30%;
+        color: white;
+        font-size: 14px;
+    }
+
+        .shopping-list h2, .recently-purchased h3 {
+            font-size: 18px;
+            text-align: center;
+        }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        block-size: stretch;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: blue;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: green;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: red;
+        color: white;
+    }
+
+    .shopping-list-item, .recently-purchased-item {
+        padding: 5px;
+        border-bottom: 1px solid #ccc;
+        cursor: pointer;
+    }
+</style>
