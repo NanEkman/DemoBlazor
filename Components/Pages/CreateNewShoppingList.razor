@@ -1,4 +1,9 @@
 ﻿@page "/CreateNewShoppingList"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using DemoBlazor.Model
+@inject ProtectedSessionStorage SessionStorage
+@inject NavigationManager Navigation
+
 
 
 <h1>Create New Shopping List</h1>
@@ -78,9 +83,9 @@
 </section>
 
 @code {
-    private string ShoppingListName { get; set; } = "";
-    private string SelectedCategory { get; set; } = "";
-    private string ProductName { get; set; } = "";
+    private string ShoppingListName { get; set; } = "New Shoppinglist"; // mockad data
+    private string SelectedCategory { get; set; } = "Fruits & Vegetables";
+    private string ProductName { get; set; } = "Apple";
     private int ProductAmount { get; set; } = 1;
 
     private List<ProductItem> ShoppingList { get; set; } = new();

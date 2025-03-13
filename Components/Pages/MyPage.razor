@@ -1,8 +1,92 @@
 ﻿@page "/mypage"
+@using DemoBlazor.Model
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject NavigationManager Navigation
+@inject ProtectedSessionStorage SessionStorage
+@using System.Collections.Generic
 
-@code {
 
+<h1>Welcome to MyPage!</h1>
+
+<h2>Your shopping lists:</h2>
+
+@foreach (var listname in shoppingListNames)
+{
+    <li @onclick="() => ShowProductsForList(listname)">@listname</li>
 }
 
-<h1>Min Blazor-sida</h1>
-<p>Välkommen till MyPage!</p>
+<!-- Visa produkter för den valda shoppinglistan -->
+@if (selectedShoppingList != null)
+{
+    <h3>Products in @selectedShoppingList:</h3>
+    <ul>
+        @foreach (var product in GetProductsForList(selectedShoppingList))
+        {
+            <li>@product.Name - @product.Amount</li>
+        }
+    </ul>
+}
+
+
+@* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
+
+<a href="/CreateNewShoppingList" class="btnNewShoppingList">Go to Create New Shopping List</a>
+
+
+@code {
+    // Mockad lista av produkter
+    private List<Product> products = new List<Product>
+    {
+        new Product { ShoppingListName = "Weekly Groceries", Name = "Apple", Amount = 1 },
+        new Product { ShoppingListName = "Weekly Groceries", Name = "Banana", Amount = 2 },
+        new Product { ShoppingListName = "Dinner Shopping", Name = "Cream", Amount = 1 },
+        new Product { ShoppingListName = "Dinner Shopping", Name = "Cottage Cheese", Amount = 1 }
+    };
+
+    // Visa unika shoppinglistnamn från Product list
+    private List<string> shoppingListNames => products.Select(p => p.ShoppingListName).Distinct().ToList();
+
+    private string selectedShoppingList;
+
+    private List<Product> GetProductsForList(string listName)
+    {
+        return products.Where(p => p.ShoppingListName == listName).ToList();
+    }
+
+    // Funktion som körs när en shoppinglista klickas
+    private void ShowProductsForList(string listName)
+    {
+        selectedShoppingList = listName;
+    }
+
+    private async Task SaveEditedList()
+    {
+
+    }
+}
+
+<style>
+    .btnNewShoppingList,
+    .btnEditShoppinglist {
+        padding: 10px 20px;
+        border-radius: 10px;
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        text-decoration: none; /* Tar bort understrykning */
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .btnNewShoppingList:hover
+        .btnEditShoppinglist:hover {
+            background-color: #0056b3;
+        }
+
+        .btnNewShoppingList:focus
+        .btnEditShoppinglist:focus {
+            outline: none;
+        }
+
+
+</style>
