@@ -15,34 +15,41 @@
     @foreach (var list in shoppingLists)
     {
         <li class="list-group-item">
-            <!-- Klickbar listtitel för att visa detaljer -->
-            <span class="list-title" @onclick="() => ShowListDetails(list.Title)">
-                @list.Title
-            </span>
-                <!-- Ta bort shoppinglista -->
-                <button class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
-                    <i class="bi bi-trash"></i> 
-                </button>
-                <!-- Redigera shoppinglista -->
-                <button class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
-                    <i class="bi bi-pencil"></i> 
-                </button>
+            <h3>@list.Title</h3>
+
+            <!-- Ta bort shoppinglista -->
+            <button type="submit" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
+                <i class="bi bi-trash"></i>
+            </button>
+            <!-- Redigera shoppinglista -->
+            <button class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                <i class="bi bi-pencil"></i>
+            </button>
+
+            <!-- Lista med produkter -->
+            <ul>
+                @foreach (var product in list.Products)
+                {
+                    <li>
+                        @product.Name - @product.Amount @product.Category
+
+                        <!-- Ta bort produkt -->
+                        <button class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                        <!-- Redigera produkt -->
+                        <button class="btn btn-primary small-btn" @onclick="() => EditProduct(product)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </li>
+                }
+            </ul>
         </li>
     }
 </ul>
 
-@if (selectedList != null)
-{
-    <h3>Products in @selectedList.Title:</h3>
-    <ul>
-        @foreach (var product in GetProductsForList(selectedList.Title))
-        {
-            <li>@product.Name - @product.Amount</li>
-        }
-    </ul>
-}
 
-<button class="btnEditShoppinglist" @onclick="SaveShoppingList">Save</button>
 
 <a href="/CreateNewShoppingList" class="btnNewShoppingList">Go to Create New Shopping List</a>
 
@@ -53,44 +60,29 @@
 
     // Mockad lista av shoppinglistor
     private List<ShoppingList> shoppingLists = new List<ShoppingList>
-{
-    new ShoppingList
     {
-        Id = 1,
-        Title = "Weekly Groceries",
-        Products = new List<Product>
+        new ShoppingList
         {
-            new Product { Name = "Apple", Amount = 1, Category = "Fruit" },
-            new Product { Name = "Banana", Amount = 2, Category = "Fruit" },
-            new Product { Name = "Orange", Amount = 3, Category = "Fruit" }
-        }
-    },
-    new ShoppingList
-    {
-        Id = 2,
-        Title = "Dinner Shopping",
-        Products = new List<Product>
+            Id = 1,
+            Title = "Weekly Groceries",
+            Products = new List<Product>
+            {
+                new Product { Name = "Apple", Amount = 1, Category = "Fruits & Vegetables" },
+                new Product { Name = "Banana", Amount = 2, Category = "Fruits & Vegetables" },
+                new Product { Name = "Orange", Amount = 3, Category = "Fruits & Vegetables" }
+            }
+        },
+        new ShoppingList
         {
-            new Product { Name = "Cream", Amount = 1, Category = "Dairy" },
-            new Product { Name = "Cottage Cheese", Amount = 1, Category = "Dairy" }
+            Id = 2,
+            Title = "Dinner Shopping",
+            Products = new List<Product>
+            {
+                new Product { Name = "Cream", Amount = 1, Category = "Fridge items" },
+                new Product { Name = "Cottage Cheese", Amount = 1, Category = "Fridge items" }
+            }
         }
-    }
-};
-
-    // Den valda shoppinglistan för att visa produkter
-    private ShoppingList selectedList;
-
-    // Funktion för att visa produkter för en viss shoppinglista
-    private List<Product> GetProductsForList(string listName)
-    {
-        return products.Where(p => p.ShoppingListName == listName).ToList();
-    }
-
-    // Funktion som körs när en shoppinglista klickas
-    private void ShowListDetails(string listTitle)
-    {
-        selectedList = shoppingLists.FirstOrDefault(list => list.Title == listTitle);
-    }
+    };
 
     // Ta bort en shoppinglista
     private void RemoveShoppingList(ShoppingList list)
@@ -105,17 +97,15 @@
 
     }
 
-    // Spara shoppinglistan 
-    private async Task SaveShoppingList()
+    // Ta bort produkt i listan
+    private void RemoveProduct(Product product)
     {
-        var mockData = new ShoppingList
-            {
-                Id = 1,
-                Title = "My Shopping List"
-            };
 
-        // Spara shoppinglistan i ProtectedSessionStorage
-        await SessionStorage.SetAsync("ShoppingList", mockData);
+    }
+    // Redigera produkt i listan
+    private void EditProduct(Product product)
+    {
+
     }
 }
 
