@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ProtectedSessionStorage SessionStorage
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject ILogger<MyPage> Logger
 
 <h1>Welcome to MyPage!</h1>
 
@@ -12,33 +14,51 @@
     <div>
         <strong>Shopping List Name from Session:</strong> @ShoppingListName
     </div>
-
-@*     <ul>
-        @foreach (var item in ShoppingList)
-        {
-            <li>@item.Category: @item.Name (@item.Amount)</li>
-        }
-    </ul> *@
 }
 else
 {
     <p>No shopping list found.</p>
 }
 
-<button class="btnNewShoppingList" @onclick="NavigateToCreate">Create New Shopping List</button>
+@* <button class="btnNewShoppingList" @onclick="NavigateToCreate">Create New Shopping List</button> *@
+<a href="/CreateNewShoppingList" class="btnNewShoppingList">Go to Create New Shopping List</a>
 
 @code {
     private string ShoppingListName { get; set; } = "";
 
-    // private List<ProductItem> ShoppingList { get; set; } = new();
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     ShoppingListName = await SessionStorage.GetAsync<string>("ShoppingListName");
-    //     ShoppingList = await SessionStorage.GetAsync<List<ProductItem>>("ShoppingList");
-    // }
-
     private void NavigateToCreate()
     {
         Navigation.NavigateTo("/CreateNewShoppingList");
+        // Navigation.NavigateTo("https://localhost:7259/CreateNewShoppingList");
     }
+
 }
+
+
+    <style>
+
+    .btn {
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btnNewShoppingList {
+        padding: 10px 20px; /* Justera storleken på knappen */
+        border-radius: 10px; /* Rundade hörn (justera värdet för mer eller mindre rundning) */
+        border: 1px solid #007bff; /* Kantlinje */
+        background-color: #007bff; 
+        color: white; 
+        font-size: 16px; 
+        cursor: pointer; /* Gör så att muspekaren blir en hand */
+        transition: background-color 0.3s; /* För smidig övergång vid hovring */
+        text-decoration: none; /* Tar bort understrykning */
+    }
+
+    .btnNewShoppingList:hover {
+            background-color: #0056b3; 
+    }
+
+
+    </style>
