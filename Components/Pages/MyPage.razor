@@ -2,18 +2,19 @@
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ProtectedSessionStorage SessionStorage
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
-@inject ILogger<MyPage> Logger
 
 <h1>Welcome to MyPage!</h1>
 
 <h2>Your shopping lists:</h2>
 
-@if (!string.IsNullOrEmpty(ShoppingListName))
+@if (ShoppingList?.Count > 0)
 {
-    <div>
-        <strong>Shopping List Name from Session:</strong> @ShoppingListName
-    </div>
+    <ul>
+        @foreach (var item in ShoppingList)
+        {
+            <li>@item.Category: @item.Name (@item.Amount)</li>
+        }
+    </ul>
 }
 else
 {
@@ -25,12 +26,6 @@ else
 
 @code {
     private string ShoppingListName { get; set; } = "";
-
-    private void NavigateToCreate()
-    {
-        Navigation.NavigateTo("/CreateNewShoppingList");
-        // Navigation.NavigateTo("https://localhost:7259/CreateNewShoppingList");
-    }
 
 }
 
