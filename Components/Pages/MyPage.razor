@@ -1,11 +1,44 @@
 ﻿@page "/mypage"
-
-
-
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage SessionStorage
+@inject NavigationManager Navigation
 
 <h1>Welcome to MyPage!</h1>
-<h2>Your shoppinglists:</h2>
+
+<h2>Your shopping lists:</h2>
+
+@if (!string.IsNullOrEmpty(ShoppingListName))
+{
+    <div>
+        <strong>Shopping List Name from Session:</strong> @ShoppingListName
+    </div>
+
+@*     <ul>
+        @foreach (var item in ShoppingList)
+        {
+            <li>@item.Category: @item.Name (@item.Amount)</li>
+        }
+    </ul> *@
+}
+else
+{
+    <p>No shopping list found.</p>
+}
+
+<button class="btnNewShoppingList" @onclick="NavigateToCreate">Create New Shopping List</button>
 
 @code {
+    private string ShoppingListName { get; set; } = "";
 
+    // private List<ProductItem> ShoppingList { get; set; } = new();
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     ShoppingListName = await SessionStorage.GetAsync<string>("ShoppingListName");
+    //     ShoppingList = await SessionStorage.GetAsync<List<ProductItem>>("ShoppingList");
+    // }
+
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/CreateNewShoppingList");
+    }
 }
