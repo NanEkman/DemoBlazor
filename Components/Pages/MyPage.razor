@@ -10,58 +10,106 @@
 
 <h2>Your shopping lists:</h2>
 
-@foreach (var listname in shoppingListNames)
-{
-    <li @onclick="() => ShowProductsForList(listname)">@listname</li>
-}
+<!-- Lista med shoppinglistor -->
+<ul class="list-group">
+    @foreach (var list in shoppingLists)
+    {
+        <li class="list-group-item">
+            <!-- Klickbar listtitel för att visa detaljer -->
+            <span class="list-title" @onclick="() => ShowListDetails(list.Title)">
+                @list.Title
+            </span>
+                <!-- Ta bort shoppinglista -->
+                <button class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
+                    <i class="bi bi-trash"></i> 
+                </button>
+                <!-- Redigera shoppinglista -->
+                <button class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                    <i class="bi bi-pencil"></i> 
+                </button>
+        </li>
+    }
+</ul>
 
-<!-- Visa produkter för den valda shoppinglistan -->
-@if (selectedShoppingList != null)
+@if (selectedList != null)
 {
-    <h3>Products in @selectedShoppingList:</h3>
+    <h3>Products in @selectedList.Title:</h3>
     <ul>
-        @foreach (var product in GetProductsForList(selectedShoppingList))
+        @foreach (var product in GetProductsForList(selectedList.Title))
         {
             <li>@product.Name - @product.Amount</li>
         }
     </ul>
 }
 
-
-@* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
+<button class="btnEditShoppinglist" @onclick="SaveShoppingList">Save</button>
 
 <a href="/CreateNewShoppingList" class="btnNewShoppingList">Go to Create New Shopping List</a>
 
+@* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
+
 
 @code {
+
     // Mockad lista av produkter
     private List<Product> products = new List<Product>
     {
         new Product { ShoppingListName = "Weekly Groceries", Name = "Apple", Amount = 1 },
         new Product { ShoppingListName = "Weekly Groceries", Name = "Banana", Amount = 2 },
         new Product { ShoppingListName = "Dinner Shopping", Name = "Cream", Amount = 1 },
-        new Product { ShoppingListName = "Dinner Shopping", Name = "Cottage Cheese", Amount = 1 }
+        new Product { ShoppingListName = "Dinner Shopping", Name = "Cottage Cheese", Amount = 1 },
+        new Product { ShoppingListName = "Weekly Groceries", Name = "Orange", Amount = 3 }
     };
 
-    // Visa unika shoppinglistnamn från Product list
-    private List<string> shoppingListNames => products.Select(p => p.ShoppingListName).Distinct().ToList();
+    // Lista av shoppinglistor
+    private List<ShoppingList> shoppingLists = new List<ShoppingList>
+    {
+        new ShoppingList { Id = 1, Title = "Weekly Groceries" },
+        new ShoppingList { Id = 2, Title = "Dinner Shopping" }
+    };
 
-    private string selectedShoppingList;
+    // Den valda shoppinglistan för att visa produkter
+    private ShoppingList selectedList;
 
+    // Funktion för att visa produkter för en viss shoppinglista
     private List<Product> GetProductsForList(string listName)
     {
         return products.Where(p => p.ShoppingListName == listName).ToList();
     }
 
     // Funktion som körs när en shoppinglista klickas
-    private void ShowProductsForList(string listName)
+    private void ShowListDetails(string listTitle)
     {
-        selectedShoppingList = listName;
+        selectedList = shoppingLists.FirstOrDefault(list => list.Title == listTitle);
     }
 
-    private async Task SaveEditedList()
+    // Ta bort en shoppinglista
+    private void RemoveShoppingList(ShoppingList list)
     {
+        shoppingLists.Remove(list);
 
+        // Ta bort alla produkter som tillhör den borttagna shoppinglistan
+        products.RemoveAll(p => p.ShoppingListName == list.Title);
+    }
+
+    // Redigera shoppinglista (kan implementeras för att tillåta redigering)
+    private void EditShoppingList(ShoppingList list)
+    {
+        // Implementera logik för att redigera listan
+        Console.WriteLine($"Edit list: {list.Title}");
+    }
+
+    // Spara shoppinglistan (detta kan användas för att t.ex. spara till session)
+    private async Task SaveShoppingList()
+    {
+        var mockData = new ShoppingList
+            {
+                Id = 1,
+                Title = "My Shopping List"
+            };
+
+        // Spara shoppinglistan i ProtectedSessionStorage
+        await SessionStorage.SetAsync("ShoppingList", mockData);
     }
 }
 
@@ -88,5 +136,10 @@
             outline: none;
         }
 
+    /* Justera storleken på knapparna genom att minska paddingen */
+    .small-btn {
+        padding: 5px 10px; /* Minska paddingen */
+        font-size: 12px; /* Minska textstorleken */
+    }
 
 </style>
