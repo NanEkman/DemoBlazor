@@ -1,13 +1,27 @@
 ﻿@page "/mypage"
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ProtectedSessionStorage SessionStorage
-
-
+@inject NavigationManager NavigationManager
 
 
 <h1>Welcome to MyPage!</h1>
 <h2>Your shoppinglists:</h2>
+<!-- Visar shoppinglistans namn från sessionen -->
+<div>
+    <strong>Shopping List Name from Session:</strong> @shoppingListName
+</div>
+
+<section>
+    <h2>Your Lists</h2>
+
+    <!-- Om inga shoppinglistor finns, visa ett meddelande -->
+
+    <!-- Knapp för att skapa en ny shoppinglista -->
+    <button class="btnNewShoppingList">Create New Shoppinglist</button>
+</section>
 
 @code {
+    private string shoppingListName;
+        private List<dynamic> shoppingLists; // Dynamisk lista utan en formell modell
 
 }

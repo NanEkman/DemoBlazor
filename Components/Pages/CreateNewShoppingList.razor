@@ -1,6 +1,7 @@
 ﻿@page "/CreateNewShoppingList"
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ProtectedSessionStorage SessionStorage
+@inject NavigationManager NavigationManager
 
 
 <h1>Create New Shopping List</h1>
@@ -109,10 +110,21 @@
         ShoppingList.Clear();
     }
 
-    private void CreateShoppingList()
+    private async Task CreateShoppingList()
     {
-        Console.WriteLine("Shopping List Created!");
+        if (string.IsNullOrWhiteSpace(ShoppingListName) || ShoppingList.Count == 0)
+        {
+            return; // Förhindra att en tom lista sparas
+        }
+
+        await SessionStorage.SetAsync("shoppingList", new { Name = ShoppingListName, Items = ShoppingList });
+
+        // Återställ namnet för en ny lista
+        ShoppingListName = "";
+
+        NavigationManager.NavigateTo("/mypage");
     }
+
 
     private class ProductItem
     {
