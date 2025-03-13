@@ -1,9 +1,10 @@
 ﻿@page "/CreateNewShoppingList"
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@using DemoBlazor.Model
-@inject ProtectedSessionStorage SessionStorage
 @inject NavigationManager Navigation
-
+@using DemoBlazor.Model
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject NavigationManager Navigation
+@inject ProtectedSessionStorage SessionStorage
+@using System.Collections.Generic
 
 
 <h1>Create New Shopping List</h1>
@@ -16,12 +17,12 @@
 
             <div>
                 <label>Shopping List Name:</label>
-                <input type="text" class="form-control" @bind="ShoppingListName" placeholder="Enter List Name" />
+                <input type="text" class="form-control" @bind="ShoppingList.Title" placeholder="Enter List Name" />
             </div>
 
             <div>
                 <label>Category:</label>
-                <select class="form-control" @bind="SelectedCategory">
+                <select class="form-control" @bind="NewProduct.Category">
                     <option value="">--Select Category--</option>
                     <option value="Fruits & Vegetables">Fruits & Vegetables</option>
                     <option value="Fridge">Fridge items</option>
@@ -34,36 +35,32 @@
 
             <div>
                 <label>Product Name:</label>
-                <input type="text" class="form-control" @bind="ProductName" placeholder="Enter product name" />
+                <input type="text" class="form-control" @bind="NewProduct.Name" placeholder="Enter product name" />
             </div>
 
             <div>
                 <label>Amount:</label>
-                <input type="number" class="form-control" @bind="ProductAmount" min="1" step="1" />
+                <input type="number" class="form-control" @bind="NewProduct.Amount" min="1" step="1" />
             </div>
         </fieldset>
 
-       
+        <nav class="button-group">
+            <!-- Change to button and add @onclick -->
+            <button class="btn btn-primary" @onclick="AddProductToList">
+                <i class="bi bi-plus-circle"></i> Add to List
+            </button>
 
-            <nav class="button-group">
-                <button type="button" class="btn btn-primary" @onclick="AddToList">
-                    <i class="bi bi-plus-circle"></i> Add to List
-                </button>
+            <a href="/mypage" class="btn btn-success">Create Shopping List</a>
 
-                <a href="/mypage" class="btn btn-success">Create Shopping List</a>
-
-                <a href="/mypage" class="btn btn-danger">Cancel</a>
-            </nav>
-
-
-        
+            <a href="/mypage" class="btn btn-danger">Cancel</a>
+        </nav>
     </section>
 
-    <!-- Högra sektionen: Realtidslista -->
+    <!-- Realtidslista -->
     <section class="shopping-list">
         <h2>Your Shopping List:</h2>
         <ul>
-            @foreach (var item in ShoppingList)
+            @foreach (var item in ShoppingList.Products)
             {
                 <li class="shopping-list-item">
                     <strong>@item.Category:</strong> @item.Name (@item.Amount)
@@ -72,62 +69,60 @@
         </ul>
     </section>
 
-    <!-- Recently Purchased -->
+    <!-- Recently Purchased List -->
     <section class="recently-purchased">
         <h3>Recently Purchased</h3>
         <ul>
-            <li class="recently-purchased-item">Milk</li>
-            <li class="recently-purchased-item">Bread</li>
-            <li class="recently-purchased-item">Eggs</li>
+            @foreach (var product in RecentlyPurchased)
+            {
+                <li class="recently-purchased-item">
+                    <strong>@product.Category:</strong> @product.Name (@product.Amount)
+                </li>
+            }
         </ul>
     </section>
 </section>
 
-
 @code {
-    private string ShoppingListName { get; set; } = "New Shoppinglist"; // mockad data
-    private string SelectedCategory { get; set; } = "Fruits & Vegetables";
-    private string ProductName { get; set; } = "Apple";
-    private int ProductAmount { get; set; } = 1;
-
-    private List<ProductItem> ShoppingList { get; set; } = new();
-
-    private void AddToList()
-    {
-        if (!string.IsNullOrWhiteSpace(ProductName) && !string.IsNullOrWhiteSpace(SelectedCategory))
+    private ShoppingList ShoppingList { get; set; } = new ShoppingList
         {
-            ShoppingList.Add(new ProductItem
+            Title = "My Shopping List",
+            Products = new List<Product>()
+        };
+
+    private Product NewProduct { get; set; } = new Product();
+
+    private List<Product> RecentlyPurchased { get; set; } = new List<Product>
+    {
+        new Product { Name = "Milk", Category = "Dairy", Amount = 1 },
+        new Product { Name = "Bread", Category = "Bakery", Amount = 1 },
+        new Product { Name = "Eggs", Category = "Dairy", Amount = 12 }
+    };
+
+    private void AddProductToList()
+    {
+        Console.WriteLine("AddProductToList method called"); // Debugging statement
+
+        if (!string.IsNullOrWhiteSpace(NewProduct.Name) && !string.IsNullOrWhiteSpace(NewProduct.Category) && NewProduct.Amount > 0)
+        {
+            ShoppingList.Products.Add(new Product
                 {
-                    Name = ProductName,
-                    Category = SelectedCategory,
-                    Amount = ProductAmount
+                    Name = NewProduct.Name,
+                    Category = NewProduct.Category,
+                    Amount = NewProduct.Amount
                 });
 
-            // Återställ fälten efter att vi lagt till produkten
-            ProductName = "";
-            ProductAmount = 1;
+            // Clear the form fields after adding the product
+            NewProduct = new Product();
+
+            Console.WriteLine("Product added to list"); // Debugging statement
+        }
+        else
+        {
+            Console.WriteLine("Invalid product details"); // Debugging statement
         }
     }
-
-
-    // private void Cancel()
-    // {
-    //    Navigation.NavigateTo("/mypage"); // Navigerar till MyPage
-    // }
-
-    private void CreateShoppingList()
-    {
-        Console.WriteLine("Shopping List Created!");
-    }
-
-    private class ProductItem
-    {
-        public string Name { get; set; } = "";
-        public string Category { get; set; } = "";
-        public int Amount { get; set; }
-    }
 }
-
 <style>
     body {
         font-family: Arial, sans-serif;
