@@ -67,11 +67,13 @@
     <!-- Formulär för att lägga till en ny produkt -->
     <form>
         <label for="ProductName">Product Name:</label>
-        <input type="text" asp-for="AddNewProduct.Name" class="form-control" placeholder="Enter product name" />
+        <input type="text" @bind="newProduct.Name" class="form-control" placeholder="Enter product name" />
+
         <label for="Amount">Amount:</label>
-        <input type="number" asp-for="AddNewProduct.Amount" class="form-control" placeholder="Enter amount" />
+        <input type="number" @bind="newProduct.Amount" class="form-control" placeholder="Enter amount" />
+
         <label for="Category">Category:</label>
-        <select asp-for="AddNewProduct.Category" class="form-control">
+        <select @bind="newProduct.Category" class="form-control">
             <option value="">--Select Category--</option>
             <option value="FruitsVegetables">Fruits & Vegetables</option>
             <option value="Fridge">Fridge items</option>
@@ -80,16 +82,19 @@
             <option value="Hygiene">Hygiene items</option>
             <option value="Other">Other</option>
         </select>
-        <button type="submit" class="btn btn-primary">Add to Shoppinglist</button>
-    </form>
 
+        <button type="button" class="btn btn-primary" @onclick="() => AddNewProduct(newProduct, selectedList)">Add to Shoppinglist</button>
+    </form>
 }
+
 
 @* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
 
 @code {
 
     private bool showAddProductForm = false;  // Skapar en variabel som håller reda på om formuläret ska visas
+    private Product newProduct = new Product(); 
+    private ShoppingList selectedList;  
 
     // Mockad lista av shoppinglistor
     private List<ShoppingList> shoppingLists = new List<ShoppingList>
@@ -169,16 +174,15 @@
 
         if (shoppingList != null)
         {
-            var newProduct = new Product
+            shoppingList.Products.Add(new Product
             {
                 Name = product.Name,
                 Amount = product.Amount,
                 Category = product.Category
-            };
+            });
 
-
-            shoppingList.Products.Add(newProduct);
             showAddProductForm = false; // Stäng formuläret efter att produkten lagts till
+            newProduct = new Product();
             StateHasChanged();
         }
     }
