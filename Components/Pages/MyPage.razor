@@ -21,12 +21,12 @@
                 <h3>@list.Title</h3>
 
                 <!-- Ta bort shoppinglista -->
-                    <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
+                    <i class="bi bi-trash"></i>
+                </button>
 
                 <!-- Redigera shoppinglista -->
-                    <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
                     <i class="bi bi-pencil"></i>
                 </button>
 
@@ -43,12 +43,12 @@
                             @product.Name - @product.Amount @product.Category
 
                             <!-- Ta bort produkt -->
-                                <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product, list)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                            <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product, list)">
+                                <i class="bi bi-trash"></i>
+                            </button>
 
                             <!-- Redigera produkt -->
-                                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                            <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
                                 <i class="bi bi-pencil"></i>
                             </button>
                         </li>
@@ -166,12 +166,23 @@
     private void AddNewProduct(Product product, ShoppingList list)
     {
         var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+
         if (shoppingList != null)
         {
-            shoppingList.Products.Add(product);
-            StateHasChanged(); // Uppdatera UI
+            var newProduct = new Product
+            {
+                Name = product.Name,
+                Amount = product.Amount,
+                Category = product.Category
+            };
+
+
+            shoppingList.Products.Add(newProduct);
+            showAddProductForm = false; // Stäng formuläret efter att produkten lagts till
+            StateHasChanged();
         }
     }
+
 }
 
 <style>
