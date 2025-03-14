@@ -1,4 +1,6 @@
 ﻿@page "/mypage"
+@rendermode InteractiveServer
+@using DemoBlazor
 @using DemoBlazor.Model
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject NavigationManager Navigation
@@ -11,52 +13,83 @@
 <h2>Your shopping lists:</h2>
 
 <!-- Lista med shoppinglistor -->
-<ul class="list-group">
-    @foreach (var list in shoppingLists)
-    {
-        <li class="list-group-item">
-            <h3>@list.Title</h3>
+<section class="shopping-list">
+    <ul class="list-group">
+        @foreach (var list in shoppingLists)
+        {
+            <li class="list-group-item">
+                <h3>@list.Title</h3>
 
-            <!-- Ta bort shoppinglista -->
-            <button type="submit" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
-                <i class="bi bi-trash"></i>
-            </button>
-            <!-- Redigera shoppinglista -->
-            <button class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
-                <i class="bi bi-pencil"></i>
-            </button>
+                <!-- Ta bort shoppinglista -->
+                    <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
+                        <i class="bi bi-trash"></i>
+                    </button>
 
-            <!-- Lista med produkter -->
-            <ul>
-                @foreach (var product in list.Products)
-                {
-                    <li>
-                        @product.Name - @product.Amount @product.Category
+                <!-- Redigera shoppinglista -->
+                    <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                    <i class="bi bi-pencil"></i>
+                </button>
 
-                        <!-- Ta bort produkt -->
-                        <button class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product)">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                <!-- Lägg till produkt i shoppinglistan -->
+                <button class="btn btn-primary small-btn" @onclick="ShowAddProductForm">
+                    <i class="bi bi-plus-circle"></i>
+                </button>
 
-                        <!-- Redigera produkt -->
-                        <button class="btn btn-primary small-btn" @onclick="() => EditProduct(product)">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </li>
-                }
-            </ul>
-        </li>
-    }
-</ul>
+                <!-- Lista med produkter -->
+                <ul>
+                    @foreach (var product in list.Products)
+                    {
+                        <li>
+                            @product.Name - @product.Amount @product.Category
 
+                            <!-- Ta bort produkt -->
+                                <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product, list)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
 
+                            <!-- Redigera produkt -->
+                                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
 
-<a href="/CreateNewShoppingList" class="btnNewShoppingList">Go to Create New Shopping List</a>
+</section>
+
+<NavLink href="/CreateNewShoppingList" class="btnNewShoppingList">Create New Shopping List </NavLink>
+
+@if (showAddProductForm)
+{
+    <!-- Formulär för att lägga till en ny produkt -->
+    <form>
+        <label for="ProductName">Product Name:</label>
+        <input type="text" asp-for="AddNewProduct.Name" class="form-control" placeholder="Enter product name" />
+        <label for="Amount">Amount:</label>
+        <input type="number" asp-for="AddNewProduct.Amount" class="form-control" placeholder="Enter amount" />
+        <label for="Category">Category:</label>
+        <select asp-for="AddNewProduct.Category" class="form-control">
+            <option value="">--Select Category--</option>
+            <option value="FruitsVegetables">Fruits & Vegetables</option>
+            <option value="Fridge">Fridge items</option>
+            <option value="Freezer">Freezer items</option>
+            <option value="Pantry">Pantry items</option>
+            <option value="Hygiene">Hygiene items</option>
+            <option value="Other">Other</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Add to Shoppinglist</button>
+    </form>
+
+}
 
 @* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
 
-
 @code {
+
+    private bool showAddProductForm = false;  // Skapar en variabel som håller reda på om formuläret ska visas
 
     // Mockad lista av shoppinglistor
     private List<ShoppingList> shoppingLists = new List<ShoppingList>
@@ -87,25 +120,57 @@
     // Ta bort en shoppinglista
     private void RemoveShoppingList(ShoppingList list)
     {
-        shoppingLists.Remove(list);
-
+        var shoppingListToRemove = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        if (shoppingListToRemove != null)
+        {
+            shoppingLists.Remove(shoppingListToRemove);
+            StateHasChanged(); // Tvinga omrendering av UI / uppdatera UI
+        }
     }
 
     // Redigera shoppinglista
-    private void EditShoppingList(ShoppingList list)
+    private void EditShoppingList(ShoppingList uppdatedList)
     {
-
+        // Hitta listan baserat på Id och uppdatera dess titel eller andra egenskaper
+        var list = shoppingLists.FirstOrDefault(l => l.Id == uppdatedList.Id);
+        if (list != null)
+        {
+            list.Title = uppdatedList.Title;
+        }
+        // Tvinga omrendering
+        StateHasChanged();
     }
 
     // Ta bort produkt i listan
-    private void RemoveProduct(Product product)
+    private void RemoveProduct(Product product, ShoppingList list)
     {
-
+        var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        if (shoppingList != null)
+        {
+            shoppingList.Products.Remove(product);
+            StateHasChanged(); // Uppdatera UI
+        }
     }
+
     // Redigera produkt i listan
     private void EditProduct(Product product)
     {
 
+    }
+
+    private void ShowAddProductForm()
+    {
+        showAddProductForm = !showAddProductForm; // Växla mellan att visa och dölja formuläret
+    }
+
+    private void AddNewProduct(Product product, ShoppingList list)
+    {
+        var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        if (shoppingList != null)
+        {
+            shoppingList.Products.Add(product);
+            StateHasChanged(); // Uppdatera UI
+        }
     }
 }
 
@@ -120,6 +185,7 @@
         text-decoration: none; /* Tar bort understrykning */
         cursor: pointer;
         transition: background-color 0.3s;
+        margin-top: 15 px; 
     }
 
         .btnNewShoppingList:hover
@@ -136,6 +202,32 @@
     .small-btn {
         padding: 5px 10px; /* Minska paddingen */
         font-size: 12px; /* Minska textstorleken */
+    }
+
+    .list-group {
+        margin-bottom: 25px;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #2c2c2c;
+        color: white;
+    }
+
+    .MyPage-container {
+        display: flex;
+        justify-content: space-between;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .list-group-item {
+        background-color: #444;
+        padding: 15px;
+        border-radius: 8px;
+        width: 30%;
+        color: white;
+        font-size: 14px;
     }
 
 </style>

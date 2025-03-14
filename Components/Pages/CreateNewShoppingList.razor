@@ -1,4 +1,5 @@
 ﻿@page "/CreateNewShoppingList"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using DemoBlazor.Model
 @inject ProtectedSessionStorage SessionStorage
@@ -112,9 +113,28 @@
         ShoppingList.Clear();
     }
 
+    // Mockad lista av shoppinglistor
+    private List<ShoppingList> shoppingLists = new List<ShoppingList>();
+
     private void CreateShoppingList()
     {
-        Console.WriteLine("Shopping List Created!");
+        var newList = new ShoppingList
+            {
+                Id = shoppingLists.Count + 1,
+                Title = ShoppingListName,
+                Products = ShoppingList.Select(p => new Product
+                {
+                    Name = p.Name,
+                    Category = p.Category,
+                    Amount = p.Amount
+                }).ToList()
+            };
+
+        // Lägg till den skapade listan i huvudvyn
+        shoppingLists.Add(newList);
+
+        // Navigera till huvudsidan efter skapandet
+        Navigation.NavigateTo("/mypage");
     }
 
     private class ProductItem
@@ -123,6 +143,7 @@
         public string Category { get; set; } = "";
         public int Amount { get; set; }
     }
+
 }
 
 <style>
