@@ -1,4 +1,6 @@
 ﻿@page "/mypage"
+@rendermode InteractiveServer
+@using DemoBlazor
 @using DemoBlazor.Model
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject NavigationManager Navigation
@@ -6,7 +8,10 @@
 @using System.Collections.Generic
 
 
+
+
 <h1>Welcome to MyPage!</h1>
+
 
 <h2>Your shopping lists:</h2>
 
@@ -19,11 +24,13 @@
             <h3>@list.Title</h3>
 
             <!-- Ta bort shoppinglista -->
-            <button type="submit" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
-                <i class="bi bi-trash"></i>
-            </button>
+                <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+
             <!-- Redigera shoppinglista -->
-            <button class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
                 <i class="bi bi-pencil"></i>
             </button>
 
@@ -35,12 +42,12 @@
                         @product.Name - @product.Amount @product.Category
 
                         <!-- Ta bort produkt -->
-                        <button class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product)">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                            <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product, list)">
+                                <i class="bi bi-trash"></i>
+                            </button>
 
                         <!-- Redigera produkt -->
-                        <button class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                            <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
                             <i class="bi bi-pencil"></i>
                         </button>
                     </li>
@@ -51,8 +58,7 @@
 </ul>
 </section>
 
-
-<a href="/CreateNewShoppingList" class="btnNewShoppingList">Go to Create New Shopping List</a>
+<NavLink href="/CreateNewShoppingList" class="btnNewShoppingList">Create New Shopping List </NavLink>
 
 @* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
 
@@ -85,11 +91,23 @@
     };
 
     // Ta bort en shoppinglista
+    // private void RemoveShoppingList(ShoppingList list)
+    // {
+    //     shoppingLists.Remove(list);
+    //     StateHasChanged(); // Tvinga omrendering
+    // }
+
     private void RemoveShoppingList(ShoppingList list)
     {
-        shoppingLists.Remove(list);
-
+        var shoppingListToRemove = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        if (shoppingListToRemove != null)
+        {
+            shoppingLists.Remove(shoppingListToRemove);
+            StateHasChanged(); // Tvinga omrendering av UI
+        }
     }
+
+
 
     // Redigera shoppinglista
     private void EditShoppingList(ShoppingList uppdatedList)
@@ -106,10 +124,16 @@
     }
 
     // Ta bort produkt i listan
-    private void RemoveProduct(Product product)
+    private void RemoveProduct(Product product, ShoppingList list)
     {
-
+        var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        if (shoppingList != null)
+        {
+            shoppingList.Products.Remove(product);
+            StateHasChanged(); // Uppdatera UI
+        }
     }
+
     // Redigera produkt i listan
     private void EditProduct(Product product)
     {
