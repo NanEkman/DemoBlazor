@@ -52,6 +52,7 @@
             </li>
         }
     </ul>
+
 </section>
 
 <NavLink href="/CreateNewShoppingList" class="btnNewShoppingList">Create New Shopping List </NavLink>
@@ -125,6 +126,16 @@
     private void EditProduct(Product product)
     {
 
+    }
+
+    private void AddNewProduct(Product product, ShoppingList list)
+    {
+        var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        if (shoppingList != null)
+        {
+            shoppingList.Products.Add(product);
+            StateHasChanged(); // Uppdatera UI
+        }
     }
 }
 
