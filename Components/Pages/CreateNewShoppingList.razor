@@ -8,19 +8,18 @@
 <h1>Create New Shopping List</h1>
 
 <section class="shopping-container">
-    <!-- Vänstra sektionen: Formulär -->
     <section class="shopping-form">
         <fieldset>
             <legend>Shopping List Details</legend>
 
             <div>
                 <label>Shopping List Name:</label>
-                <input type="text" class="form-control" @bind="ShoppingListName" placeholder="Enter List Name" />
+                <input type="text" class="form-control" @bind="ShoppingList.Title" placeholder="Enter List Name" />
             </div>
 
             <div>
                 <label>Category:</label>
-                <select class="form-control" @bind="SelectedCategory">
+                <select class="form-control" @bind="NewProduct.Category">
                     <option value="">--Select Category--</option>
                     <option value="Fruits & Vegetables">Fruits & Vegetables</option>
                     <option value="Fridge">Fridge items</option>
@@ -33,12 +32,12 @@
 
             <div>
                 <label>Product Name:</label>
-                <input type="text" class="form-control" @bind="ProductName" placeholder="Enter product name" />
+                <input type="text" class="form-control" @bind="NewProduct.Name" placeholder="Enter product name" />
             </div>
 
             <div>
                 <label>Amount:</label>
-                <input type="number" class="form-control" @bind="ProductAmount" min="1" step="1" />
+                <input type="number" class="form-control" @bind="NewProduct.Amount" min="1" step="1" />
             </div>
         </fieldset>
 
@@ -57,11 +56,10 @@
         </nav>
     </section>
 
-    <!-- Högra sektionen: Realtidslista -->
     <section class="shopping-list">
         <h2>Your Shopping List:</h2>
         <ul>
-            @foreach (var item in ShoppingList)
+            @foreach (var item in ShoppingList.Products)
             {
                 <li class="shopping-list-item">
                     <strong>@item.Category:</strong> @item.Name (@item.Amount)
@@ -70,7 +68,6 @@
         </ul>
     </section>
 
-    <!-- Recently Purchased -->
     <section class="recently-purchased">
         <h3>Recently Purchased</h3>
         <ul>
@@ -82,66 +79,55 @@
 </section>
 
 @code {
-    private string ShoppingListName { get; set; } = "New Shoppinglist"; // mockad data
-    private string SelectedCategory { get; set; } = "Fruits & Vegetables";
-    private string ProductName { get; set; } = "Apple";
-    private int ProductAmount { get; set; } = 1;
+    private ShoppingList ShoppingList { get; set; } = new ShoppingList { Products = new List<Product>() };
+    private Product NewProduct { get; set; } = new Product();
 
-    private List<ProductItem> ShoppingList { get; set; } = new();
-
-    private void AddToList()
+    private async Task AddToList()
     {
-        if (!string.IsNullOrWhiteSpace(ProductName) && !string.IsNullOrWhiteSpace(SelectedCategory))
+        if (string.IsNullOrWhiteSpace(NewProduct.Name) || string.IsNullOrWhiteSpace(NewProduct.Category))
         {
-            ShoppingList.Add(new ProductItem
-                {
-                    Name = ProductName,
-                    Category = SelectedCategory,
-                    Amount = ProductAmount
-                });
-
-            // Återställ fälten efter att vi lagt till produkten
-            ProductName = "";
-            ProductAmount = 1;
+            return; // Stoppa om produktens namn eller kategori saknas
         }
+
+        // Lägg till en **kopia** av produkten för att undvika referensproblem
+        ShoppingList.Products.Add(new Product
+            {
+                Name = NewProduct.Name,
+                Category = NewProduct.Category,
+                Amount = NewProduct.Amount
+            });
+
+        // Återställ fältet efter tillägg
+        NewProduct = new Product();
+    }
+
+    private async Task CreateShoppingList()
+    {
+        if (string.IsNullOrWhiteSpace(ShoppingList.Title) || ShoppingList.Products.Count == 0)
+        {
+            return; // Stoppa om listan är tom eller saknar titel
+        }
+
+        var newList = new ShoppingList
+            {
+                Id = new Random().Next(1000, 9999), // Generera unikt ID
+                Title = ShoppingList.Title,
+                Products = new List<Product>(ShoppingList.Products) // Kopiera produkterna
+            };
+
+        // Spara i session
+        await SessionStorage.SetAsync("SavedShoppingList", newList);
+
+        // Rensa nuvarande shoppinglista
+        ShoppingList = new ShoppingList { Products = new List<Product>() };
+
+        Navigation.NavigateTo("/mypage");
     }
 
     private void Cancel()
     {
-        ShoppingList.Clear();
-    }
-
-    // Mockad lista av shoppinglistor
-    private List<ShoppingList> shoppingLists = new List<ShoppingList>();
-
-    private void CreateShoppingList()
-    {
-        var newList = new ShoppingList
-            {
-                Id = shoppingLists.Count + 1,
-                Title = ShoppingListName,
-                Products = ShoppingList.Select(p => new Product
-                {
-                    Name = p.Name,
-                    Category = p.Category,
-                    Amount = p.Amount
-                }).ToList()
-            };
-
-        // Lägg till den skapade listan i huvudvyn
-        shoppingLists.Add(newList);
-
-        // Navigera till huvudsidan efter skapandet
         Navigation.NavigateTo("/mypage");
     }
-
-    private class ProductItem
-    {
-        public string Name { get; set; } = "";
-        public string Category { get; set; } = "";
-        public int Amount { get; set; }
-    }
-
 }
 
 <style>
@@ -176,7 +162,6 @@
         display: flex;
         justify-content: space-between;
         margin-top: 10px;
-        block-size: stretch;
     }
 
     .btn {

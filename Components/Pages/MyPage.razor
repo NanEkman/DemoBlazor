@@ -164,6 +164,26 @@
 
     }
 
+	// hämta den lagrade listan från createneewshoppinglist
+    private bool hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !hasLoaded)
+        {
+            hasLoaded = true; // Se till att detta bara körs en gång
+
+            var storedList = await SessionStorage.GetAsync<ShoppingList>("SavedShoppingList");
+
+            if (storedList.Success && storedList.Value != null)
+            {
+                shoppingLists.Add(storedList.Value);
+                StateHasChanged(); // Uppdatera UI
+            }
+        }
+    }
+
+
     // REDIGERA DENNA KOD OCH SKAPA FORMULÄR FÖR ATT REDIGERA PRODUKTER
     private void ShowAddEditProductForm(ShoppingList list)
     {
@@ -202,6 +222,8 @@
             showAddProductForm = false;  // Dölj formuläret
             StateHasChanged();  // Uppdatera UI
         }
+
+
     }
 }
 
@@ -216,7 +238,7 @@
         text-decoration: none; /* Tar bort understrykning */
         cursor: pointer;
         transition: background-color 0.3s;
-        margin-top: 15 px; 
+        margin-top: auto; 
     }
 
         .btnNewShoppingList:hover
