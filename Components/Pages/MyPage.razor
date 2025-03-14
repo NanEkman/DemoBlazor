@@ -8,54 +8,50 @@
 @using System.Collections.Generic
 
 
-
-
 <h1>Welcome to MyPage!</h1>
-
 
 <h2>Your shopping lists:</h2>
 
 <!-- Lista med shoppinglistor -->
 <section class="shopping-list">
-<ul class="list-group">
-    @foreach (var list in shoppingLists)
-    {
-        <li class="list-group-item">
-            <h3>@list.Title</h3>
+    <ul class="list-group">
+        @foreach (var list in shoppingLists)
+        {
+            <li class="list-group-item">
+                <h3>@list.Title</h3>
 
-            <!-- Ta bort shoppinglista -->
-                <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
-                    <i class="bi bi-trash"></i>
+                <!-- Ta bort shoppinglista -->
+                    <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                <!-- Redigera shoppinglista -->
+                    <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                    <i class="bi bi-pencil"></i>
                 </button>
 
+                <!-- Lista med produkter -->
+                <ul>
+                    @foreach (var product in list.Products)
+                    {
+                        <li>
+                            @product.Name - @product.Amount @product.Category
 
-            <!-- Redigera shoppinglista -->
-                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
-                <i class="bi bi-pencil"></i>
-            </button>
+                            <!-- Ta bort produkt -->
+                                <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product, list)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
 
-            <!-- Lista med produkter -->
-            <ul>
-                @foreach (var product in list.Products)
-                {
-                    <li>
-                        @product.Name - @product.Amount @product.Category
-
-                        <!-- Ta bort produkt -->
-                            <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveProduct(product, list)">
-                                <i class="bi bi-trash"></i>
+                            <!-- Redigera produkt -->
+                                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                                <i class="bi bi-pencil"></i>
                             </button>
-
-                        <!-- Redigera produkt -->
-                            <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </li>
-                }
-            </ul>
-        </li>
-    }
-</ul>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
 </section>
 
 <NavLink href="/CreateNewShoppingList" class="btnNewShoppingList">Create New Shopping List </NavLink>
@@ -91,23 +87,15 @@
     };
 
     // Ta bort en shoppinglista
-    // private void RemoveShoppingList(ShoppingList list)
-    // {
-    //     shoppingLists.Remove(list);
-    //     StateHasChanged(); // Tvinga omrendering
-    // }
-
     private void RemoveShoppingList(ShoppingList list)
     {
         var shoppingListToRemove = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
         if (shoppingListToRemove != null)
         {
             shoppingLists.Remove(shoppingListToRemove);
-            StateHasChanged(); // Tvinga omrendering av UI
+            StateHasChanged(); // Tvinga omrendering av UI / uppdatera UI
         }
     }
-
-
 
     // Redigera shoppinglista
     private void EditShoppingList(ShoppingList uppdatedList)
@@ -117,7 +105,6 @@
         if (list != null)
         {
             list.Title = uppdatedList.Title;
-            // Andra uppdateringar, som att ändra produkter eller annan information
         }
         // Tvinga omrendering
         StateHasChanged();
