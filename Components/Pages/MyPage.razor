@@ -31,9 +31,10 @@
                 </button>
 
                 <!-- Lägg till produkt i shoppinglistan -->
-                <button class="btn btn-primary small-btn" @onclick="ShowAddProductForm">
+                <button class="btn btn-primary small-btn" @onclick="() => ShowAddProductForm(list)">
                     <i class="bi bi-plus-circle"></i>
                 </button>
+
 
                 <!-- Lista med produkter -->
                 <ul>
@@ -163,29 +164,38 @@
 
     }
 
-    private void ShowAddProductForm()
+    private void ShowAddProductForm(ShoppingList list)
     {
+        // Hämta den shoppinglistan som användaren valt baserat på Id
+        selectedList = shoppingLists.FirstOrDefault(l => l.Id == list.Id); 
         showAddProductForm = !showAddProductForm; // Växla mellan att visa och dölja formuläret
     }
 
     private void AddNewProduct(Product product, ShoppingList list)
     {
-        var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
-
-        if (shoppingList != null)
+        if (selectedList == null)
         {
-            shoppingList.Products.Add(new Product
+            return; // Stoppa om listan är null
+        }
+
+        // Kontrollera om alla fält är korrekt ifyllda
+        if (!string.IsNullOrWhiteSpace(product.Name) && !string.IsNullOrWhiteSpace(product.Category) && product.Amount > 0)
+        {
+            // Lägg till produkten i den valda shoppinglistan
+            selectedList.Products.Add(new Product
             {
                 Name = product.Name,
                 Amount = product.Amount,
                 Category = product.Category
             });
 
-            showAddProductForm = false; // Stäng formuläret efter att produkten lagts till
-            newProduct = new Product();
-            StateHasChanged();
+            // Återställ formuläret och stäng det
+            newProduct = new Product();  // Rensa fälten
+            showAddProductForm = false;  // Dölja formuläret
+            StateHasChanged();  // Uppdatera UI
         }
     }
+
 
 }
 
