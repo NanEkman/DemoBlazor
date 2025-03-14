@@ -164,6 +164,14 @@
 
     }
 
+    // REDIGERA DENNA KOD OCH SKAPA FORMULÄR FÖR ATT REDIGERA PRODUKTER
+    private void ShowAddEditProductForm(ShoppingList list)
+    {
+        // Hämta den shoppinglistan som användaren valt baserat på Id
+        selectedList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
+        showAddProductForm = !showAddProductForm; // Växla mellan att visa och dölja formuläret
+    }
+
     private void ShowAddProductForm(ShoppingList list)
     {
         // Hämta den shoppinglistan som användaren valt baserat på Id
@@ -191,12 +199,10 @@
 
             // Återställ formuläret och stäng det
             newProduct = new Product();  // Rensa fälten
-            showAddProductForm = false;  // Dölja formuläret
+            showAddProductForm = false;  // Dölj formuläret
             StateHasChanged();  // Uppdatera UI
         }
     }
-
-
 }
 
 <style>
