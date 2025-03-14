@@ -30,6 +30,8 @@
                     <i class="bi bi-pencil"></i>
                 </button>
 
+                <button class="btn btn-primary" @onclick="ShowAddProductForm">Add Product</button>
+
                 <!-- Lista med produkter -->
                 <ul>
                     @foreach (var product in list.Products)
@@ -57,9 +59,34 @@
 
 <NavLink href="/CreateNewShoppingList" class="btnNewShoppingList">Create New Shopping List </NavLink>
 
+@if (showAddProductForm)
+{
+    <!-- Formulär för att lägga till en ny produkt -->
+    <form>
+        <label for="ProductName">Product Name:</label>
+        <input type="text" asp-for="AddNewProduct.Name" class="form-control" placeholder="Enter product name" />
+        <label for="Amount">Amount:</label>
+        <input type="number" asp-for="AddNewProduct.Amount" class="form-control" placeholder="Enter amount" />
+        <label for="Category">Category:</label>
+        <select asp-for="AddNewProduct.Category" class="form-control">
+            <option value="">--Select Category--</option>
+            <option value="FruitsVegetables">Fruits & Vegetables</option>
+            <option value="Fridge">Fridge items</option>
+            <option value="Freezer">Freezer items</option>
+            <option value="Pantry">Pantry items</option>
+            <option value="Hygiene">Hygiene items</option>
+            <option value="Other">Other</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Add to Shoppinglist</button>
+    </form>
+
+}
+
 @* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
 
 @code {
+
+    private bool showAddProductForm = false;  // Skapar en variabel som håller reda på om formuläret ska visas
 
     // Mockad lista av shoppinglistor
     private List<ShoppingList> shoppingLists = new List<ShoppingList>
@@ -126,6 +153,11 @@
     private void EditProduct(Product product)
     {
 
+    }
+
+    private void ShowAddProductForm()
+    {
+        showAddProductForm = !showAddProductForm; // Växla mellan att visa och dölja formuläret
     }
 
     private void AddNewProduct(Product product, ShoppingList list)
