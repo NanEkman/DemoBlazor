@@ -49,7 +49,7 @@
                             </button>
 
                             <!-- Redigera produkt -->
-                            <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
+                            <button type="button" class="btn btn-primary small-btn" @onclick="() => ShowEditProductForm(product)">
                                 <i class="bi bi-pencil"></i>
                             </button>
                         </li>
@@ -66,6 +66,7 @@
 @if (showAddProductForm)
 {
     <!-- Formulär för att lägga till en ny produkt -->
+    <h2>Add new Product:</h2>
     <form>
         <label for="ProductName">Product Name:</label>
         <input type="text" @bind="newProduct.Name" class="form-control" placeholder="Enter product name" />
@@ -76,18 +77,47 @@
         <label for="Category">Category:</label>
         <select @bind="newProduct.Category" class="form-control">
             <option value="">--Select Category--</option>
-            <option value="FruitsVegetables">Fruits & Vegetables</option>
-            <option value="Fridge">Fridge items</option>
-            <option value="Freezer">Freezer items</option>
-            <option value="Pantry">Pantry items</option>
-            <option value="Hygiene">Hygiene items</option>
+            <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+            <option value="Fridge items">Fridge items</option>
+            <option value="Freezer items">Freezer items</option>
+            <option value="Pantry items">Pantry items</option>
+            <option value="Hygiene items">Hygiene items</option>
             <option value="Other">Other</option>
         </select>
 
         <button type="button" class="btn btn-primary" @onclick="() => AddNewProduct(newProduct, selectedList)">Add to Shoppinglist</button>
+        <button type="button" class="btn btn-secondary" @onclick="() => showAddProductForm = false">Cancel</button>
     </form>
 }
 
+@if (showEditProductForm)
+{
+    <form>
+        <h2>Edit Product:</h2>
+
+        <label for="ProductName">Edit Product Name:</label>
+        <input type="text" @bind="selectedProduct.Name" class="form-control" placeholder="Enter product name" />
+
+        <label for="Amount">Edit Amount:</label>
+        <input type="number" @bind="selectedProduct.Amount" class="form-control" placeholder="Enter amount" />
+
+        <label for="Category">Edit Category:</label>
+        <select @bind="selectedProduct.Category" class="form-control">
+            <option value="">--Select Category--</option>
+            <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+            <option value="Fridge items">Fridge items</option>
+            <option value="Freezer items">Freezer items</option>
+            <option value="Pantry items">Pantry items</option>
+            <option value="Hygiene items">Hygiene items</option>
+            <option value="Other">Other</option>
+        </select>
+
+
+        <button type="button" class="btn btn-success" @onclick="SaveEditedProduct">Save Changes</button>
+        <button type="button" class="btn btn-secondary" @onclick="() => showEditProductForm = false">Cancel</button>
+
+    </form>
+}
 
 @* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
 
@@ -95,7 +125,10 @@
 
     private bool showAddProductForm = false;  // Skapar en variabel som håller reda på om formuläret ska visas
     private Product newProduct = new Product(); 
-    private ShoppingList selectedList;  
+    private ShoppingList selectedList;
+
+    private bool showEditProductForm = false; // variabel för visa formulär EditProduct
+    private Product selectedProduct = new Product(); // Håller den produkt som redigeras
 
     // Mockad lista av shoppinglistor
     private List<ShoppingList> shoppingLists = new List<ShoppingList>
@@ -106,9 +139,9 @@
             Title = "Weekly Groceries",
             Products = new List<Product>
             {
-                new Product { Name = "Apple", Amount = 1, Category = "Fruits & Vegetables" },
-                new Product { Name = "Banana", Amount = 2, Category = "Fruits & Vegetables" },
-                new Product { Name = "Orange", Amount = 3, Category = "Fruits & Vegetables" }
+                new Product { Id = 1, Name = "Apple", Amount = 1, Category = "Fruits & Vegetables" },
+                new Product { Id = 2, Name = "Banana", Amount = 2, Category = "Fruits & Vegetables" },
+                new Product { Id = 3, Name = "Orange", Amount = 3, Category = "Fruits & Vegetables" }
             }
         },
         new ShoppingList
@@ -117,8 +150,8 @@
             Title = "Dinner Shopping",
             Products = new List<Product>
             {
-                new Product { Name = "Cream", Amount = 1, Category = "Fridge items" },
-                new Product { Name = "Cottage Cheese", Amount = 1, Category = "Fridge items" }
+                new Product { Id = 4, Name = "Cream", Amount = 1, Category = "Fridge items" },
+                new Product { Id = 5, Name = "Cottage Cheese", Amount = 1, Category = "Fridge items" }
             }
         }
     };
@@ -158,11 +191,47 @@
         }
     }
 
+    // Öppna formluläret för att editera en ny produkt
+    private void ShowEditProductForm(Product product)
+    {
+        selectedProduct = new Product
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Amount = product.Amount,
+                Category = product.Category 
+            };
+
+        showEditProductForm = true; // Visa redigeringsformuläret
+    }
+
     // Redigera produkt i listan
     private void EditProduct(Product product)
     {
 
     }
+
+    private void SaveEditedProduct()
+    {
+        // Hitta den shoppinglistan och produkt som ska uppdateras
+        var shoppingList = shoppingLists.FirstOrDefault(l => l.Products.Any(p => p.Id == selectedProduct.Id));
+        if (shoppingList != null)
+        {
+            var productToEdit = shoppingList.Products.FirstOrDefault(p => p.Id == selectedProduct.Id);
+            if (productToEdit != null)
+            {
+                productToEdit.Name = selectedProduct.Name;
+                productToEdit.Amount = selectedProduct.Amount;
+                productToEdit.Category = selectedProduct.Category;
+            }
+        }
+
+        // Tvinga omrendering av UI:t
+        StateHasChanged();
+
+        showEditProductForm = false; // Stäng formuläret
+    }
+
 
 	// hämta den lagrade listan från createneewshoppinglist
     private bool hasLoaded = false;
@@ -183,8 +252,6 @@
         }
     }
 
-
-    // REDIGERA DENNA KOD OCH SKAPA FORMULÄR FÖR ATT REDIGERA PRODUKTER
     private void ShowAddEditProductForm(ShoppingList list)
     {
         // Hämta den shoppinglistan som användaren valt baserat på Id
@@ -194,9 +261,8 @@
 
     private void ShowAddProductForm(ShoppingList list)
     {
-        // Hämta den shoppinglistan som användaren valt baserat på Id
-        selectedList = shoppingLists.FirstOrDefault(l => l.Id == list.Id); 
-        showAddProductForm = !showAddProductForm; // Växla mellan att visa och dölja formuläret
+        selectedList = list;  // Sätt den valda listan
+        showAddProductForm = !showAddProductForm;
     }
 
     private void AddNewProduct(Product product, ShoppingList list)
@@ -222,8 +288,6 @@
             showAddProductForm = false;  // Dölj formuläret
             StateHasChanged();  // Uppdatera UI
         }
-
-
     }
 }
 
