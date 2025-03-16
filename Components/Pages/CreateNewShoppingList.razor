@@ -89,17 +89,21 @@
             return; // Stoppa om produktens namn eller kategori saknas
         }
 
-        // Lägg till en **kopia** av produkten för att undvika referensproblem
-        ShoppingList.Products.Add(new Product
+        // Skapa en unik kopia av produkten för att undvika referensproblem
+        var productCopy = new Product
             {
+                Id = new Random().Next(1000, 9999), // Generera unikt ID
                 Name = NewProduct.Name,
                 Category = NewProduct.Category,
                 Amount = NewProduct.Amount
-            });
+            };
+
+        ShoppingList.Products.Add(productCopy); // Lägg till produkten
 
         // Återställ fältet efter tillägg
         NewProduct = new Product();
     }
+
 
     private async Task CreateShoppingList()
     {
@@ -115,14 +119,20 @@
                 Products = new List<Product>(ShoppingList.Products) // Kopiera produkterna
             };
 
-        // Spara i session
-        await SessionStorage.SetAsync("SavedShoppingList", newList);
+        // Hämta befintliga sparade listor
+        var storedLists = await SessionStorage.GetAsync<List<ShoppingList>>("SavedShoppingLists");
+        List<ShoppingList> allLists = storedLists.Success && storedLists.Value != null ? storedLists.Value : new List<ShoppingList>();
 
-        // Rensa nuvarande shoppinglista
-        ShoppingList = new ShoppingList { Products = new List<Product>() };
+        // Lägg till den nya listan i den befintliga samlingen
+        allLists.Add(newList);
 
+        // Spara den uppdaterade listan i SessionStorage
+        await SessionStorage.SetAsync("SavedShoppingLists", allLists);
+
+        // Navigera tillbaka till mypage
         Navigation.NavigateTo("/mypage");
     }
+
 
     private void Cancel()
     {

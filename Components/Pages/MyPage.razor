@@ -157,15 +157,20 @@
     };
 
     // Ta bort en shoppinglista
-    private void RemoveShoppingList(ShoppingList list)
+    private async Task RemoveShoppingList(ShoppingList list)
     {
         var shoppingListToRemove = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
         if (shoppingListToRemove != null)
         {
             shoppingLists.Remove(shoppingListToRemove);
-            StateHasChanged(); // Tvinga omrendering av UI / uppdatera UI
+
+            // Spara den uppdaterade listan i SessionStorage
+            await SessionStorage.SetAsync("SavedShoppingLists", shoppingLists);
+
+            StateHasChanged(); // Uppdatera UI
         }
     }
+
 
     // Redigera shoppinglista
     private void EditShoppingList(ShoppingList uppdatedList)
@@ -181,15 +186,24 @@
     }
 
     // Ta bort produkt i listan
-    private void RemoveProduct(Product product, ShoppingList list)
+    private async Task RemoveProduct(Product product, ShoppingList list)
     {
         var shoppingList = shoppingLists.FirstOrDefault(l => l.Id == list.Id);
         if (shoppingList != null)
         {
-            shoppingList.Products.Remove(product);
-            StateHasChanged(); // Uppdatera UI
+            var productToRemove = shoppingList.Products.FirstOrDefault(p => p.Id == product.Id);
+            if (productToRemove != null)
+            {
+                shoppingList.Products.Remove(productToRemove);
+
+                // Spara den uppdaterade listan i SessionStorage
+                await SessionStorage.SetAsync("SavedShoppingLists", shoppingLists);
+
+                StateHasChanged(); // Uppdatera UI
+            }
         }
     }
+
 
     // Öppna formluläret för att editera en ny produkt
     private void ShowEditProductForm(Product product)
@@ -211,11 +225,9 @@
 
     }
 
-    private void SaveEditedProduct()
+    private async Task SaveEditedProduct()
     {
-        // Hitta den shoppinglistan och produkt som ska uppdateras
-        var shoppingList = shoppingLists.FirstOrDefault(l => l.Products.Any(p => p.Id == selectedProduct.Id));
-        if (shoppingList != null)
+        foreach (var shoppingList in shoppingLists)
         {
             var productToEdit = shoppingList.Products.FirstOrDefault(p => p.Id == selectedProduct.Id);
             if (productToEdit != null)
@@ -226,11 +238,14 @@
             }
         }
 
-        // Tvinga omrendering av UI:t
-        StateHasChanged();
+        // Spara uppdaterade shoppinglistor till SessionStorage
+        await SessionStorage.SetAsync("SavedShoppingLists", shoppingLists);
 
-        showEditProductForm = false; // Stäng formuläret
+        // Uppdatera UI och stäng formuläret
+        StateHasChanged();
+        showEditProductForm = false;
     }
+
 
 
 	// hämta den lagrade listan från createneewshoppinglist
@@ -238,19 +253,39 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !hasLoaded)
+        if (firstRender)
         {
-            hasLoaded = true; // Se till att detta bara körs en gång
+            var storedLists = await SessionStorage.GetAsync<List<ShoppingList>>("SavedShoppingLists");
 
-            var storedList = await SessionStorage.GetAsync<ShoppingList>("SavedShoppingList");
-
-            if (storedList.Success && storedList.Value != null)
+            if (storedLists.Success && storedLists.Value != null)
             {
-                shoppingLists.Add(storedList.Value);
+                shoppingLists.Clear(); // Rensa den lokala listan för att undvika dubbletter
+
+                foreach (var list in storedLists.Value)
+                {
+                    // Se till att vi skapar en riktig kopia för att undvika referensproblem
+                    var newList = new ShoppingList
+                        {
+                            Id = list.Id,
+                            Title = list.Title,
+                            Products = list.Products.Select(p => new Product
+                            {
+                                Id = p.Id,
+                                Name = p.Name,
+                                Amount = p.Amount,
+                                Category = p.Category
+                            }).ToList() // Kopiera varje produkt för sig
+                        };
+
+                    shoppingLists.Add(newList);
+                }
+
                 StateHasChanged(); // Uppdatera UI
             }
         }
     }
+
+
 
     private void ShowAddEditProductForm(ShoppingList list)
     {
