@@ -24,17 +24,10 @@
                 <button type="button" class="btn btn-danger small-btn" @onclick="() => RemoveShoppingList(list)">
                     <i class="bi bi-trash"></i>
                 </button>
-
-                <!-- Redigera shoppinglista -->
-                <button type="button" class="btn btn-primary small-btn" @onclick="() => EditShoppingList(list)">
-                    <i class="bi bi-pencil"></i>
-                </button>
-
                 <!-- Lägg till produkt i shoppinglistan -->
                 <button class="btn btn-primary small-btn" @onclick="() => ShowAddProductForm(list)">
                     <i class="bi bi-plus-circle"></i>
                 </button>
-
 
                 <!-- Lista med produkter -->
                 <ul>
@@ -119,8 +112,6 @@
     </form>
 }
 
-@* <button class="btnEditShoppinglist" @onclick="SaveEditedList">Save</button> *@
-
 @code {
 
     private bool showAddProductForm = false;  // Skapar en variabel som håller reda på om formuläret ska visas
@@ -169,20 +160,6 @@
 
             StateHasChanged(); // Uppdatera UI
         }
-    }
-
-
-    // Redigera shoppinglista
-    private void EditShoppingList(ShoppingList uppdatedList)
-    {
-        // Hitta listan baserat på Id och uppdatera dess titel eller andra egenskaper
-        var list = shoppingLists.FirstOrDefault(l => l.Id == uppdatedList.Id);
-        if (list != null)
-        {
-            list.Title = uppdatedList.Title;
-        }
-        // Tvinga omrendering
-        StateHasChanged();
     }
 
     // Ta bort produkt i listan
